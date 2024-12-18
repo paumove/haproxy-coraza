@@ -22,7 +22,8 @@ git clone https://github.com/corazawaf/coraza-spoa.git
 cd ./coraza-spoa
 
 # Compile Coraza-spoa
-make
+# Modify Go version in go.mod if necessary
+go build
 
 # Create user and group for Coraza
 groupadd --system coraza-spoa
@@ -37,7 +38,7 @@ touch /var/log/coraza-spoa/server.log /var/log/coraza-spoa/error.log \
       /var/log/coraza-spoa/audit.log /var/log/coraza-spoa/debug.log
 
 # Copy compiled binary
-cp -a ./coraza-spoa_amd64 /usr/bin/coraza-spoa
+cp -a ./coraza-spoa /usr/bin/coraza-spoa
 chmod 755 /usr/bin/coraza-spoa
 
 # Generate configuration file
@@ -77,8 +78,8 @@ cd ..
 
 # Set permissions
 chown -R coraza-spoa:coraza-spoa /etc/coraza-spoa/
+chmod -R 600 /etc/coraza-spoa/
 chmod 700 /etc/coraza-spoa
-chmod -R 600 /etc/coraza-spoa/*
 chmod 700 /etc/coraza-spoa/rules
 chmod 700 /etc/coraza-spoa/plugins
 
@@ -86,14 +87,15 @@ chmod 700 /etc/coraza-spoa/plugins
 dnf install haproxy -y
 
 # Copy example HAProxy configuration files
-cp -a ./doc/config/coraza.cfg /etc/haproxy/coraza.cfg
+cd ..
+cp -a ./basic/etc/haproxy/coraza.cfg /etc/haproxy/coraza.cfg
 sed -i 's/app=str(sample_app) id=unique-id src-ip=src/app=str(haproxy_waf) id=unique-id src-ip=src/' /etc/haproxy/coraza.cfg
 sed -i 's/app=str(sample_app) id=unique-id version=res.ver/app=str(haproxy_waf) id=unique-id version=res.ver/' /etc/haproxy/coraza.cfg
 sed -i 's|event on-http-response|event on-http-response\n|' /etc/haproxy/coraza.cfg
 
 # Backup original HAProxy configuration
 mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg_orig
-cp -a ./doc/config/haproxy.cfg /etc/haproxy/haproxy.cfg
+cp -a ./basic/etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg
 sed -i -e '$a\' /etc/haproxy/haproxy.cfg
 
 # Configure permissions for HAProxy
@@ -101,7 +103,7 @@ chown haproxy /etc/haproxy/coraza.cfg
 chmod 600 /etc/haproxy/coraza.cfg
 
 # Setup systemd service
-cp -a ./contrib/coraza-spoa.service /usr/lib/systemd/system/coraza-spoa.service
+cp -a ./coraza-spoa/contrib/coraza-spoa.service /usr/lib/systemd/system/coraza-spoa.service
 systemctl daemon-reload
 systemctl enable coraza-spoa.service
 
