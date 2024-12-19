@@ -103,9 +103,9 @@ chown haproxy /etc/haproxy/coraza.cfg
 chmod 600 /etc/haproxy/coraza.cfg
 
 # Setup systemd service
-cp -a ./coraza-spoa/contrib/coraza-spoa.service /usr/lib/systemd/system/coraza-spoa.service
+cp -a ./coraza-spoa/contrib/coraza-spoa.service /etc/systemd/system/coraza-spoa.service
 systemctl daemon-reload
-systemctl enable coraza-spoa.service
+#systemctl enable coraza-spoa.service
 
 # Start services
 systemctl stop haproxy
